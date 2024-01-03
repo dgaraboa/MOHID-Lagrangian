@@ -580,11 +580,11 @@ do2:    do while(self%fields%moreValues())     ! loop while there are values to 
     !Begin----------------------------------------------------------
     allocate(getPointDimIndexes(size(self%dim)))
     do i= 1, size(self%dim)
-        if (self%dim(i)%name == Globals%Var%time)  getPointDimIndexes(i) = self%dim(i)%getFieldNearestIndex(time)
-        if (self%dim(i)%name == Globals%Var%level) getPointDimIndexes(i) = self%dim(i)%getFieldNearestIndex(pt%z)
+        if (self%dim(i)%name == Globals%Var%time)  getPointDimIndexes(i) = self%dim(i)%getFieldNearestIndex(time, dimID=-1)
+        if (self%dim(i)%name == Globals%Var%level) getPointDimIndexes(i) = self%dim(i)%getFieldNearestIndex(pt%z, dimID=-1)
         if (allocated(self%dim(i)%field1D)) then
-            if (self%dim(i)%name == Globals%Var%lon) getPointDimIndexes(i) = self%dim(i)%getFieldNearestIndex(pt%x)
-            if (self%dim(i)%name == Globals%Var%lat) getPointDimIndexes(i) = self%dim(i)%getFieldNearestIndex(pt%y)
+            if (self%dim(i)%name == Globals%Var%lon) getPointDimIndexes(i) = self%dim(i)%getFieldNearestIndex(pt%x, dimID=-1)
+            if (self%dim(i)%name == Globals%Var%lat) getPointDimIndexes(i) = self%dim(i)%getFieldNearestIndex(pt%y, dimID=-1)
         elseif (allocated(self%dim(i)%field2D)) then
             if (self%dim(i)%name == Globals%Var%lon) then
                 getPointDimIndexes(i) = self%dim(i)%getFieldNearestIndex(pt%x, dimID = 1)
@@ -674,8 +674,8 @@ do2:    do while(self%fields%moreValues())     ! loop while there are values to 
             
             if (self%dim(i)%name == Globals%Var%time) then
                 if (self%dim(i)%field1D(1) < Globals%SimTime%CurrTime - Globals%Parameters%BufferSize) then
-                    llbound(i) = self%dim(i)%getFieldNearestIndex(Globals%SimTime%CurrTime - Globals%Parameters%BufferSize/2.0)
-                    if (llbound(i) == self%dim(i)%getFieldNearestIndex(Globals%SimTime%CurrTime)) llbound(i) = llbound(i) - 1
+                    llbound(i) = self%dim(i)%getFieldNearestIndex(Globals%SimTime%CurrTime - Globals%Parameters%BufferSize/2.0, dimID=-1)
+                    if (llbound(i) == self%dim(i)%getFieldNearestIndex(Globals%SimTime%CurrTime, dimID=-1)) llbound(i) = llbound(i) - 1
                     if (llbound(i) > 2) then
                         uubound(i) = size(self%dim(i)%field1D)
                         j=size(self%dim(i)%field1D(llbound(i):uubound(i)))

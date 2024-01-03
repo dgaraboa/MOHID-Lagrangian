@@ -381,7 +381,7 @@
     integer function getFieldNearestIndex(self, value, dimID)
     class(scalar_field_class), intent(in) :: self
     real(prec), intent(in) :: value
-    integer, intent(in), optional :: dimID !lat = 1 or lon = 2
+    integer, intent(in) :: dimID !lat = 1 or lon = 2
     real(prec), allocatable, dimension(:) :: comp1d
     real(prec), allocatable, dimension(:,:) :: comp2d
     integer, allocatable, dimension(:) :: aux
@@ -399,7 +399,7 @@
             comp1d = value
             getFieldNearestIndex = minloc(abs(comp1d - self%field1D), DIM=1)
         elseif (allocated(self%field2D)) then
-            if (.not. present(dimID)) then
+            if (dimID < 0) then
                 outext = '[field_class::getFieldNearestIndex]: for a 2D field, dimID variable must be provided'
                 call Log%put(outext)
                 stop

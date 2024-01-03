@@ -37,7 +37,7 @@
     contains
     procedure :: initialize => initKernelMOHIDWaterQuality
     procedure :: WQProcess
-    procedure :: Dilution
+    procedure :: DilutionWC
     end type kernelMOHIDWaterQuality_class
     
     type(kernelUtils_class) :: KernelUtils_MOHIDWaterQuality   !< kernel utils
@@ -151,7 +151,7 @@
         depth = maxLevel(2) - depth
         
         !everywhere else will be 0
-        where (computeFlag == .true.)
+        where (computeFlag .eqv. .true.)
             mass(zoo, :) = sv%state(:,c_Zoo)
             mass(phyto, :) = sv%state(:,c_Pytho)
             mass(ammonia, :) = sv%state(:,c_NH4)
@@ -224,7 +224,7 @@
     !> Computes the dilution of dissolved material in the water column by increasing its volume
     !> @param[in] self, sv, bdata, time
     !---------------------------------------------------------------------------
-    function Dilution(self, sv, bdata, time, dt)
+    function DilutionWC(self, sv, bdata, time, dt)
     class(kernelMOHIDWaterQuality_class), intent(in) :: self
     type(stateVector_class), intent(inout) :: sv
     type(background_class), dimension(:), intent(in) :: bdata
@@ -232,7 +232,7 @@
     real(prec), dimension(:,:), allocatable :: var_dt
     type(string), dimension(:), allocatable :: var_name
     type(string), dimension(:), allocatable :: requiredVars
-    real(prec), dimension(size(sv%state,1),size(sv%state,2)) :: Dilution
+    real(prec), dimension(size(sv%state,1),size(sv%state,2)) :: DilutionWC
     real(prec), dimension(size(sv%state,1)) :: velocity_mod, volume_new, volumeRatio, double_vol_time
     integer :: c_Volume, c_O2, c_NO3, c_NO2, c_PO4, c_DON_NR, c_DOP_NR, c_DON_R, c_DOP_R
     integer :: c_Pytho, c_Zoo, c_Age, c_NH4, c_PartOrgNit, c_PartOrgPho
@@ -243,7 +243,7 @@
     !TODO : add temperature and salinity, and refactor routine to be added in kernel utils. This way dilution can be called
     ! for any kernel that requires it
     !TODO : create arrays for all these variables and create  routines to get an array of column IDs.
-    Dilution = 0.0
+    DilutionWC = 0.0
     
     allocate(requiredVars(15))
     requiredVars(1) = Globals%Var%u
@@ -320,31 +320,31 @@
     volume_new = sv%state(:,vol_Idx) * exp((alog(2.)/double_vol_time) * dt)
                 
     !Dilution in volume = Volume variation / dt
-    Dilution(:, vol_Idx) = (volume_new - sv%state(:, vol_Idx)) / dt
+    DilutionWC(:, vol_Idx) = (volume_new - sv%state(:, vol_Idx)) / dt
     
     !Reducing concentration
     volumeRatio = (volume_new / sv%state(:, vol_Idx)) - 1.0
     
     !TODO : make a cicle for each variable (returned after implementing TODO in the begining of the routine)
-    Dilution(:, c_O2) = - ((sv%state(:, c_O2) - var_dt(:, c_O2)) * volumeRatio) / dt
-    Dilution(:, c_NH4) = - ((sv%state(:, c_NH4) - var_dt(:, c_NH4)) * volumeRatio) / dt
-    Dilution(:, c_NO3) = - ((sv%state(:, c_NO3) - var_dt(:, c_NO3)) * volumeRatio) / dt
-    Dilution(:, c_NO2) = - ((sv%state(:, c_NO2) - var_dt(:, c_NO2)) * volumeRatio) / dt
-    Dilution(:, c_PO4) = - ((sv%state(:, c_PO4) - var_dt(:, c_PO4)) * volumeRatio) / dt
-    Dilution(:, c_DON_NR) = - ((sv%state(:, c_DON_NR) - var_dt(:, c_DON_NR)) * volumeRatio) / dt
-    Dilution(:, c_DOP_NR) = - ((sv%state(:, c_DOP_NR) - var_dt(:, c_DOP_NR)) * volumeRatio) / dt
-    Dilution(:, c_DON_R) = - ((sv%state(:, c_DON_R) - var_dt(:, c_DON_R)) * volumeRatio) / dt
-    Dilution(:, c_DOP_R) = - ((sv%state(:, c_DOP_R) - var_dt(:, c_DOP_R)) * volumeRatio) / dt
-    Dilution(:, c_Pytho) = - ((sv%state(:, c_Pytho) - var_dt(:, c_Pytho)) * volumeRatio) / dt
-    Dilution(:, c_Zoo) = - ((sv%state(:, c_Zoo) - var_dt(:, c_Zoo)) * volumeRatio) / dt
-    Dilution(:, c_PartOrgPho) = - ((sv%state(:, c_PartOrgPho) - var_dt(:, c_PartOrgPho)) * volumeRatio) / dt
-    Dilution(:, c_PartOrgPho) = - ((sv%state(:, c_PartOrgPho) - var_dt(:, c_PartOrgPho)) * volumeRatio) / dt
+    DilutionWC(:, c_O2) = - ((sv%state(:, c_O2) - var_dt(:, c_O2)) * volumeRatio) / dt
+    DilutionWC(:, c_NH4) = - ((sv%state(:, c_NH4) - var_dt(:, c_NH4)) * volumeRatio) / dt
+    DilutionWC(:, c_NO3) = - ((sv%state(:, c_NO3) - var_dt(:, c_NO3)) * volumeRatio) / dt
+    DilutionWC(:, c_NO2) = - ((sv%state(:, c_NO2) - var_dt(:, c_NO2)) * volumeRatio) / dt
+    DilutionWC(:, c_PO4) = - ((sv%state(:, c_PO4) - var_dt(:, c_PO4)) * volumeRatio) / dt
+    DilutionWC(:, c_DON_NR) = - ((sv%state(:, c_DON_NR) - var_dt(:, c_DON_NR)) * volumeRatio) / dt
+    DilutionWC(:, c_DOP_NR) = - ((sv%state(:, c_DOP_NR) - var_dt(:, c_DOP_NR)) * volumeRatio) / dt
+    DilutionWC(:, c_DON_R) = - ((sv%state(:, c_DON_R) - var_dt(:, c_DON_R)) * volumeRatio) / dt
+    DilutionWC(:, c_DOP_R) = - ((sv%state(:, c_DOP_R) - var_dt(:, c_DOP_R)) * volumeRatio) / dt
+    DilutionWC(:, c_Pytho) = - ((sv%state(:, c_Pytho) - var_dt(:, c_Pytho)) * volumeRatio) / dt
+    DilutionWC(:, c_Zoo) = - ((sv%state(:, c_Zoo) - var_dt(:, c_Zoo)) * volumeRatio) / dt
+    DilutionWC(:, c_PartOrgPho) = - ((sv%state(:, c_PartOrgPho) - var_dt(:, c_PartOrgPho)) * volumeRatio) / dt
+    DilutionWC(:, c_PartOrgPho) = - ((sv%state(:, c_PartOrgPho) - var_dt(:, c_PartOrgPho)) * volumeRatio) / dt
     
     ! Eliminate tracers older than 5 days (tracers will be too large)
     !TODO : implement an initial volume variable and use it to define when tracers are to be deleted. Copy from Detritus
     where(sv%state(:,c_Age) > 43200) sv%active = .false.
     
-    end function Dilution
+    end function DilutionWC
     
     !---------------------------------------------------------------------------
     !> @author Daniel Garaboa Paz - GFNL

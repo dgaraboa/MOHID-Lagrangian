@@ -120,7 +120,7 @@
     else if (sv%ttype == Globals%Types%WaterQuality) then
         runKernel = self%LagrangianKinematic(sv, bdata, time) + self%StokesDrift(sv, bdata, time) + &
                     self%Windage(sv, bdata, time) + self%DiffusionMixingLength(sv, bdata, time, dt) + &
-                    self%Aging(sv) + MOHIDWaterQuality%WQProcess(sv, bdata, time, dt) + MOHIDWaterQuality%Dilution(sv, bdata, time, dt)
+                    self%Aging(sv) + MOHIDWaterQuality%WQProcess(sv, bdata, time, dt) + MOHIDWaterQuality%DilutionWC(sv, bdata, time, dt)
     end if
     runKernel = self%Beaching(sv, runKernel)
     runKernel = VerticalMotion%CorrectVerticalBounds(sv, runKernel, bdata, dt)
