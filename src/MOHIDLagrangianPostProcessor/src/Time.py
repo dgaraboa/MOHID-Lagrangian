@@ -37,7 +37,7 @@ class FilesTimesHandler:
             if parameter.get('key') == 'End':
                 self.endTime = parameter.get('value')
             if parameter.get('key') == 'OutputWriteTime':
-                self.dt = np.float(parameter.get('value'))
+                self.dt = np.float64(parameter.get('value'))
         nFiles = len(self.fileList)
         startTimeStamp = MDateTime.getTimeStampFromISODateString(self.startTime)
         self.timeAxis = np.array([startTimeStamp + i*self.dt/daysToSeconds for i in range(0,nFiles)])
@@ -54,7 +54,7 @@ class FilesTimesHandler:
 
         """
         root = ET.parse(xmlRecipe).getroot()
-        self.timeMask = np.ones(self.timeAxis.size, dtype=np.bool)
+        self.timeMask = np.ones(self.timeAxis.size, dtype=bool)
         for parameter in root.findall('time/'):
             if parameter.tag == 'start':
                 timeRecipeStart = MDateTime.getTimeStampFromISODateString(parameter.get('value'))
@@ -64,7 +64,7 @@ class FilesTimesHandler:
                 self.timeMask = self.timeMask & (self.timeAxis < timeRecipeEnd)
             if parameter.tag == 'step':
                 step = np.int64(parameter.get('value'))
-                bufferTimeMask = np.zeros(self.timeAxis.size, dtype=np.bool)
+                bufferTimeMask = np.zeros(self.timeAxis.size, dtype=bool)
                 bufferTimeMask[::step] = True
                 self.timeMask = self.timeMask & bufferTimeMask
 

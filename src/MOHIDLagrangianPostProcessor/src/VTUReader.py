@@ -28,7 +28,7 @@ def getVariableFromVTU(VTKReader, variableName) -> np.array:
     return vtu_vars
 
 
-def getBeachMaskFromVTU(VTKReader, beachCondition) -> np.bool:
+def getBeachMaskFromVTU(VTKReader, beachCondition) -> bool:
     if beachCondition:
         state = getVariableFromVTU(VTKReader, 'state')
         if beachCondition == '0':
@@ -42,10 +42,10 @@ def getBeachMaskFromVTU(VTKReader, beachCondition) -> np.bool:
     return beachMask
 
 
-def getSourceMaskFromVTU(VTKReader, source: int) -> np.bool:
+def getSourceMaskFromVTU(VTKReader, source: int) -> bool:
     if source:
         if source == 'global':
-            sourceMask = np.bool(True)
+            sourceMask = np.bool_(True)
         else:
-            sourceMask = getVariableFromVTU(VTKReader, 'source') == np.int(source)
+            sourceMask = getVariableFromVTU(VTKReader, 'source') == np.int64(source)
     return sourceMask
