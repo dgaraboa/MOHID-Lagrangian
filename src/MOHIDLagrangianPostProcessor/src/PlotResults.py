@@ -136,9 +136,13 @@ class PlotPolygon(Plot):
         vmin, vmax = get_color_lims(self.dataArray, robust=True)
         cmap_key = get_cmap_key(vmin, vmax)
         cmap_norm = get_cmap_norm(vmin, vmax)
-
+        
+        #BUG: Fix cartopy bug. https://stackoverflow.com/a/77268204
+        ax._autoscaleXon = False
+        ax._autoscaleYon = False
+        
         setup_plot = {
-              'cmap': cmap_key,
+              #'cmap': cmap_key,
               'ax': ax,
               'vmin': vmin,
               'vmax': vmax,
@@ -172,7 +176,7 @@ class PlotPolygon(Plot):
             ax = self.getBackground(ax, extent)
             setupPlotDict = self.getSetupDict(ax)
 
-            geoDataFrame.plot(column=varName, **setupPlotDict)
+            geoDataFrame.plot(column=varName)#, **setupPlotDict)
             time_step += 1
 
         # Creating the suptitle from the filename
@@ -315,7 +319,7 @@ def plotResultsFromRecipe(outDir, xml_recipe):
         da = da.where(da != 0)  # Values with 0 consider as missing value.
 
         output_filename = outDir + '-'.join(methods_list) + '-' + variable + '.png'
-        title = get_title_methods(methods_list, variable)
+        title = '-'.join(methods_list) + '-' + variable
 
         if polygon_file:
             plotter = PlotPolygon(da, output_filename, title, units, polygon_file[0])
